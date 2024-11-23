@@ -1,26 +1,25 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const cors = require('cors');
+const connectDB = require('./config/db');
+const inventoryRoutes = require('./api/inventoryRoutes');
+const userRoutes = require('./api/userRoutes');
 
 dotenv.config();
+connectDB();
+
 const app = express();
+app.use(express.json()); // For parsing JSON
 
-// Middleware
-app.use(express.json());
-app.use(cors());
+// API Routes
+app.use('/api/inventory', inventoryRoutes);
+app.use('/api/users', userRoutes);
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Database connected'))
-    .catch(err => console.log(err));
+// Root route
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
-// Routes
-const authRoutes = require('./routes/authRoutes');
-const itemRoutes = require('./routes/itemRoutes');
-app.use('/api/auth', authRoutes);
-app.use('/api/items', itemRoutes);
-
-// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
